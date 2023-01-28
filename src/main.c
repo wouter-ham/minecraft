@@ -21,28 +21,29 @@ void init() {
     struct Entity player = ecs_new(&state.world.ecs);
     ecs_add(player, C_POSITION);
     ecs_add(player, C_PHYSICS, ((struct PhysicsComponent) {
-        .size = {
-            (vec3s) {{ 0, 0, 0 }},
-            (vec3s) {{ 0.2f, 1.6f, 0.2f }}
-        },
-        .flags = {
-            .gravity = true,
-            .collide = true
-        }
+            .size = {
+                    (vec3s) {{ 0, 0, 0 }},
+                    (vec3s) {{ 0.2f, 1.6f, 0.2f }}
+            },
+            .flags = {
+                    .gravity = true,
+                    .collide = true
+            }
     }));
     ecs_add(player, C_MOVEMENT, ((struct MovementComponent) {
-        .speed = 1.0f,
-        .jump_height = 1.0f
+            .speed = 1.0f,
+            .sprint_speed = 2.0f,
+            .jump_height = 1.0f
     }));
     ecs_add(player, C_CAMERA, ((struct CameraComponent) {
-        .offset = (vec3s) {{ 0.0f, 0.8f, 0.0f }}
+            .offset = (vec3s) {{ 0.0f, 0.8f, 0.0f }}
     }));
     ecs_add(player, C_CONTROL);
     ecs_add(player, C_BLOCKLOOK, ((struct BlockLookComponent) {
-        .radius = 5.0f,
-        .flags = {
-            .render = true
-        }
+            .radius = 5.0f,
+            .flags = {
+                    .render = true
+            }
     }));
     ecs_add(player, C_LIGHT);
 

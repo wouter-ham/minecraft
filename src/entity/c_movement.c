@@ -8,18 +8,32 @@ static void tick(struct MovementComponent *c_movement, struct Entity entity) {
     struct PhysicsComponent *c_physics = ecs_get(entity, C_PHYSICS);
 
     struct Block block = BLOCKS[world_get_block(entity.ecs->world, c_position->block)],
-                 top_block = BLOCKS[world_get_block(
-                     entity.ecs->world,
-                     world_pos_to_block(glms_vec3_add(c_position->position,
-                                                      (vec3s) {{ 0.0f, c_physics->size[1].y, 0.0f }})))];
+            top_block = BLOCKS[
+            world_get_block(
+                    entity.ecs->world,
+                    world_pos_to_block(
+                            glms_vec3_add(
+                                    c_position->position,
+                                    (vec3s) {
+                                            {
+                                                    0.0f,
+                                                    c_physics->size[1].y,
+                                                    0.0f
+                                            }
+                                    }
+                            )
+                    )
+            )
+    ];
 
-    const f32 speed = 0.0245f * c_movement->speed * (c_movement->flags.flying ? 1.8f : 1.0f);
+    const f32 speed = 0.0245f * (c_movement->flags.sprinting ? c_movement->sprint_speed : c_movement->speed) *
+                      (c_movement->flags.flying ? 1.8f : 1.0f);
 
     vec3s movement, direction, forward, right;
     movement = GLMS_VEC3_ZERO;
     direction = GLMS_VEC3_ZERO;
-    forward = (vec3s){{sinf(c_camera->camera.yaw), 0, cosf(c_camera->camera.yaw)}};
-    right = glms_vec3_cross((vec3s){{0.0f, 1.0f, 0.0f}}, forward);
+    forward = (vec3s) {{sinf(c_camera->camera.yaw), 0, cosf(c_camera->camera.yaw)}};
+    right = glms_vec3_cross((vec3s) {{0.0f, 1.0f, 0.0f}}, forward);
 
     if (c_movement->directions.forward) {
         direction = glms_vec3_add(direction, forward);
@@ -39,11 +53,11 @@ static void tick(struct MovementComponent *c_movement, struct Entity entity) {
 
     if (c_movement->flags.flying) {
         if (c_movement->directions.up) {
-            direction = glms_vec3_add(direction, (vec3s){{0.0f, 1.0f, 0.0f}});
+            direction = glms_vec3_add(direction, (vec3s) {{0.0f, 1.0f, 0.0f}});
         }
 
         if (c_movement->directions.down) {
-            direction = glms_vec3_sub(direction, (vec3s){{0.0f, 1.0f, 0.0f}});
+            direction = glms_vec3_sub(direction, (vec3s) {{0.0f, 1.0f, 0.0f}});
         }
     } else if (block.liquid) {
         // float up
@@ -52,11 +66,11 @@ static void tick(struct MovementComponent *c_movement, struct Entity entity) {
             // above the liquid, even more so if the entity is also colliding on
             // the x or z axes (presumably trying to exit the liquid)
             const bool breaching = !top_block.liquid,
-                exiting = breaching && (c_physics->stopped.x || c_physics->stopped.z);
+                    exiting = breaching && (c_physics->stopped.x || c_physics->stopped.z);
             const f32 float_speed =
-                speed * 0.7f *
-                (breaching ? 1.4f : 1.0f) *
-                (exiting ? 2.0f : 1.0f);
+                    speed * 0.7f *
+                    (breaching ? 1.4f : 1.0f) *
+                    (exiting ? 2.0f : 1.0f);
 
             c_physics->velocity.y += float_speed;
         }
@@ -107,10 +121,10 @@ static void tick(struct MovementComponent *c_movement, struct Entity entity) {
 
 void c_movement_init(struct ECS *ecs) {
     ecs_register(C_MOVEMENT, struct MovementComponent, ecs, ((union ECSSystem) {
-        .init = NULL,
-        .destroy = NULL,
-        .render = NULL,
-        .update = NULL,
-        .tick = (ECSSubscriber) tick
+            .init = NULL,
+            .destroy = NULL,
+            .render = NULL,
+            .update = NULL,
+            .tick = (ECSSubscriber) tick
     }));
 }

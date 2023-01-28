@@ -20,17 +20,25 @@ static void tick(struct ControlComponent *c_control, struct Entity entity) {
     struct MovementComponent *c_movement = ecs_get(entity, C_MOVEMENT);
     struct BlockLookComponent *c_blocklook = ecs_get(entity, C_BLOCKLOOK);
     struct PhysicsComponent *c_physics = ecs_get(entity, C_PHYSICS);
-    
+
     c_movement->directions.forward = state.window->keyboard.keys[GLFW_KEY_W].down;
     c_movement->directions.backward = state.window->keyboard.keys[GLFW_KEY_S].down;
     c_movement->directions.left = state.window->keyboard.keys[GLFW_KEY_A].down;
     c_movement->directions.right = state.window->keyboard.keys[GLFW_KEY_D].down;
-    
+
     c_movement->directions.up = state.window->keyboard.keys[GLFW_KEY_SPACE].down;
     c_movement->directions.down = state.window->keyboard.keys[GLFW_KEY_LEFT_SHIFT].down;
 
     if (state.window->keyboard.keys[GLFW_KEY_K].pressed_tick) {
         c_movement->flags.flying = !c_movement->flags.flying;
+    }
+
+    if (state.window->keyboard.keys[GLFW_KEY_LEFT_CONTROL].pressed_tick) {
+        c_movement->flags.sprinting = !c_movement->flags.sprinting;
+    }
+
+    if (!state.window->keyboard.keys[GLFW_KEY_W].down && c_movement->flags.sprinting) {
+        c_movement->flags.sprinting = false;
     }
 
     if (state.window->mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].pressed_tick
@@ -66,10 +74,10 @@ static void tick(struct ControlComponent *c_control, struct Entity entity) {
 
 void c_control_init(struct ECS *ecs) {
     ecs_register(C_CONTROL, struct ControlComponent, ecs, ((union ECSSystem){
-        .init = NULL,
-        .destroy = NULL,
-        .render = NULL,
-        .update = (ECSSubscriber) update,
-        .tick = (ECSSubscriber) tick
+            .init = NULL,
+            .destroy = NULL,
+            .render = NULL,
+            .update = (ECSSubscriber) update,
+            .tick = (ECSSubscriber) tick
     }));
 }
