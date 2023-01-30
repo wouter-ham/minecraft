@@ -87,7 +87,7 @@ extern struct Block BLOCKS[MAX_BLOCK_ID];
     extern void _name##_init();\
     _name##_init();
 
-static inline void block_init() {
+static inline void block_init(void) {
     _BLOCK_DECL(air);
     _BLOCK_DECL(grass);
     _BLOCK_DECL(dirt);
