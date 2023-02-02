@@ -11,6 +11,9 @@
     }
 
 DECL_UI_FN(destroy)
+
 DECL_UI_FN(render)
+
 DECL_UI_FN(update)
+
 DECL_UI_FN(tick)

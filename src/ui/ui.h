@@ -6,6 +6,7 @@
 
 #include "hotbar.h"
 #include "crosshair.h"
+#include "inventory.h"
 
 typedef void (*FUIComponent)(void *);
 
@@ -24,10 +25,12 @@ struct UI {
     } components;
 
     struct UIHotbar hotbar;
+    struct UIInventory inventory;
     struct UICrosshair crosshair;
 };
 
 extern struct UIComponent hotbar_init(struct UIHotbar *self);
+extern struct UIComponent inventory_init(struct UIInventory *self);
 
 #define _UI_COMPONENT(_type, _name, _member)\
     extern struct UIComponent _name##_init(_type *self);\
@@ -37,6 +40,7 @@ extern struct UIComponent hotbar_init(struct UIHotbar *self);
 
 static inline void ui_init(struct UI *self) {
     _UI_COMPONENT(struct UIHotbar, hotbar, hotbar);
+    _UI_COMPONENT(struct UIInventory, inventory, inventory);
     _UI_COMPONENT(struct UICrosshair, crosshair, crosshair);
 }
 

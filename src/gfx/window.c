@@ -14,9 +14,11 @@ static void _size_callback(GLFWwindow *handle, int width, int height) {
 static void _cursor_callback(GLFWwindow *handle, double xp, double yp) {
     vec2s p = {{xp, yp}};
 
-    window.mouse.delta = glms_vec2_sub(p, window.mouse.position);
-    window.mouse.delta.x = clamp(window.mouse.delta.x, -100.0f, 100.0f);
-    window.mouse.delta.y = clamp(window.mouse.delta.y, -100.0f, 100.0f);
+    if (mouse_get_grabbed()){
+        window.mouse.delta = glms_vec2_sub(p, window.mouse.position);
+        window.mouse.delta.x = clamp(window.mouse.delta.x, -100.0f, 100.0f);
+        window.mouse.delta.y = clamp(window.mouse.delta.y, -100.0f, 100.0f);
+    }
 
     window.mouse.position = p;
 }
@@ -83,7 +85,7 @@ void window_create(FWindow init, FWindow destroy, FWindow tick,  FWindow update,
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     window.size = (ivec2s) {{1280, 720}};
-    window.handle = glfwCreateWindow(window.size.x, window.size.y, "Project", NULL, NULL);
+    window.handle = glfwCreateWindow(window.size.x, window.size.y, "Minecraft", NULL, NULL);
     if (window.handle == NULL) {
         fprintf(stderr, "%s",  "error creating window\n");
         glfwTerminate();
@@ -121,23 +123,23 @@ static void button_array_update(size_t n, struct Button *buttons) {
     }
 }
 
-static void _init() {
+static void _init(void) {
     window.init();
 }
 
-static void _destroy() {
+static void _destroy(void) {
     window.destroy();
     glfwTerminate();
 }
 
-static void _tick() {
+static void _tick(void) {
     window.ticks++;
     button_array_tick(GLFW_MOUSE_BUTTON_LAST, window.mouse.buttons);
     button_array_tick(GLFW_KEY_LAST, window.keyboard.keys);
     window.tick();
 }
 
-static void _update() {
+static void _update(void) {
     button_array_update(GLFW_MOUSE_BUTTON_LAST, window.mouse.buttons);
     button_array_update(GLFW_KEY_LAST, window.keyboard.keys);
     window.update();
@@ -146,12 +148,12 @@ static void _update() {
     window.mouse.delta = GLMS_VEC2_ZERO;
 }
 
-static void _render() {
+static void _render(void) {
     window.frames++;
     window.render();
 }
 
-void window_loop() {
+void window_loop(void) {
     _init();
 
     while (!glfwWindowShouldClose(window.handle)) {
@@ -178,7 +180,7 @@ void window_loop() {
             tick_time -= NS_PER_TICK;
         }
         window.tick_remainder = max(tick_time, 0);
-    
+
         _update();
         _render();
         glfwSwapBuffers(window.handle);
@@ -193,6 +195,6 @@ void mouse_set_grabbed(bool grabbed) {
     glfwSetInputMode(window.handle, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
-bool mouse_get_grabbed() {
+bool mouse_get_grabbed(void) {
     return glfwGetInputMode(window.handle, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
 }
