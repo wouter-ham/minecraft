@@ -1,9 +1,9 @@
 UNAME_S = $(shell uname -s)
 
 CC = clang
-CFLAGS = -std=c11 -O3 -g -Wall -Wextra -Wpedantic -Wstrict-aliasing
+CFLAGS = -std=c23 -O3 -g -Wall -Wextra -Wpedantic -Wstrict-aliasing -D_GNU_SOURCE
 CFLAGS += -Wno-pointer-arith -Wno-newline-eof -Wno-unused-parameter -Wno-gnu-statement-expression
-CFLAGS += -Wno-gnu-compound-literal-initializer -Wno-gnu-zero-variadic-macro-arguments
+CFLAGS += -Wno-gnu-compound-literal-initializer -Wno-gnu-zero-variadic-macro-arguments -Wno-c2y-extensions
 CFLAGS += -Ilib/cglm/include -Ilib/glad/include -Ilib/glfw/include -Ilib/stb -Ilib/noise -fbracket-depth=1024
 LDFLAGS = lib/glad/src/glad.o lib/cglm/libcglm.a lib/glfw/src/libglfw3.a lib/noise/libnoise.a -lm
 
@@ -25,7 +25,7 @@ BIN = bin
 all: dirs libs game
 
 libs:
-	cd lib/cglm && cmake . -DCGLM_STATIC=ON && make
+	cd lib/cglm && cmake . -DCGLM_STATIC=ON -DCMAKE_C_FLAGS="-Wno-error=array-parameter -Wno-error=stringop-overflow -Wno-error=array-bounds" && make
 	cd lib/glad && $(CC) -o src/glad.o -Iinclude -c src/glad.c
 	cd lib/glfw && cmake . && make
 	cd lib/noise && make

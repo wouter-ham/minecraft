@@ -11,12 +11,12 @@ void player_destroy(struct EntityPlayer *self) {
 
 }
 
-void player_render(struct EntityPlayer *self) {
+void player_render(const struct EntityPlayer *self) {
     state.renderer.perspective_camera = self->camera;
 }
 
 void player_update(struct EntityPlayer *self) {
-    const f32 mouse_sensitivity = 3.2f;
+    // const f32 mouse_sensitivity = 3.2f;
     perspective_camera_update(&self->camera);
 
     for (size_t i = 0; i < 10; i++) {
@@ -37,13 +37,13 @@ void player_update(struct EntityPlayer *self) {
     }
 }
 
-bool raycast_block_fn(__attribute__((unused)) void *args, ivec3s v) {
+bool raycast_block_fn(__attribute__((unused)) void *args, const ivec3s v) {
     return world_get_block(&state.world, v) != 0;
 }
 
 void player_tick(struct EntityPlayer *self) {
     // update look at block
-    const f32 reach = 6.0f;
+    constexpr f32 reach = 6.0f;
     self->has_look_block = ray_block(
             (struct Ray) {.origin = self->camera.position, .direction = self->camera.direction},
             reach,

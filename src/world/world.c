@@ -16,22 +16,22 @@
         i++)
 
 // back-to-front ordering pointer comparator
-static int _btf_pcmp(const ivec3s **a, const ivec3s **b, ivec3s *center) {
+static int btf_pcmp(const ivec3s **a, const ivec3s **b, const ivec3s *center) {
     return -(glms_ivec3_norm2(glms_ivec3_sub(*center, **a)) - glms_ivec3_norm2(glms_ivec3_sub(*center, **b)));
 }
 
 // front-to-back ordering pointer comparator
-static int _ftb_pcmp(const ivec3s **a, const ivec3s **b, ivec3s *center) {
+static int ftb_pcmp(const ivec3s **a, const ivec3s **b, const ivec3s *center) {
     return glms_ivec3_norm2(glms_ivec3_sub(*center, **a)) - glms_ivec3_norm2(glms_ivec3_sub(*center, **b));
 }
 
 // back-to-front ordering comparator
-static int _btf_cmp(const ivec3s *a, const ivec3s *b, ivec3s *center) {
+static int btf_cmp(const ivec3s *a, const ivec3s *b, const ivec3s *center) {
     return -(glms_ivec3_norm2(glms_ivec3_sub(*center, *a)) - glms_ivec3_norm2(glms_ivec3_sub(*center, *b)));
 }
 
 // front-to-back ordering comparator
-static int _ftb_cmp(const ivec3s *a, const ivec3s *b, ivec3s *center) {
+static int ftb_cmp(const ivec3s *a, const ivec3s *b, const ivec3s *center) {
     return -(glms_ivec3_norm2(glms_ivec3_sub(*center, *b)) - glms_ivec3_norm2(glms_ivec3_sub(*center, *a)));
 }
 
@@ -69,11 +69,11 @@ static int _ftb_cmp(const ivec3s *a, const ivec3s *b, ivec3s *center) {
 
 // iterate chunks from the borders in (back to front)
 #define world_foreach_btf(_w, _cname)\
-    _world_foreach_cmp_impl(_w, _cname, _btf_pcmp, CONCAT(v, __COUNTER__), CONCAT(v, __COUNTER__), CONCAT(v, __COUNTER__))
+    _world_foreach_cmp_impl(_w, _cname, btf_pcmp, CONCAT(v, __COUNTER__), CONCAT(v, __COUNTER__), CONCAT(v, __COUNTER__))
     
 // iterate chunks from the center out (front to back)
 #define world_foreach_ftb(_w, _cname)\
-    _world_foreach_cmp_impl(_w, _cname, _ftb_pcmp, CONCAT(v, __COUNTER__), CONCAT(v, __COUNTER__), CONCAT(v, __COUNTER__))
+    _world_foreach_cmp_impl(_w, _cname, ftb_pcmp, CONCAT(v, __COUNTER__), CONCAT(v, __COUNTER__), CONCAT(v, __COUNTER__))
 
 // iterate OFFSETS from the borders in (back to front)
 #define world_foreach_offset_btf(_w, _iname, _oname)\
@@ -81,7 +81,7 @@ static int _ftb_cmp(const ivec3s *a, const ivec3s *b, ivec3s *center) {
 
 // iterate OFFSETS from the center out (front to back)
 #define world_foreach_offset_ftb(_w, _iname, _oname)\
-    _world_foreach_offset_cmp_impl(_w, _iname, _oname, _ftb_cmp, CONCAT(v, __COUNTER__), CONCAT(v, __COUNTER__), CONCAT(v, __COUNTER__))
+    _world_foreach_offset_cmp_impl(_w, _iname, _oname, ftb_cmp, CONCAT(v, __COUNTER__), CONCAT(v, __COUNTER__), CONCAT(v, __COUNTER__))
 
 // world block position -> heightmap internal position
 static inline ivec2s world_pos_to_heightmap_pos(ivec2s pos) {
@@ -94,17 +94,19 @@ static inline bool world_heightmap_in_bounds(struct World *self, ivec2s offset) 
 }
 
 // heightmap offset -> array index
-static inline size_t world_heightmap_index(struct World *self, ivec2s offset) {
-    ivec2s p = glms_ivec2_sub(offset, (ivec2s) {{ self->chunks_origin.x, self->chunks_origin.z }});
+static inline size_t world_heightmap_index(const struct World *self, const ivec2s offset) {
+    ivec2s p = glms_ivec2_sub(offset, (ivec2s) {.raw = { self->chunks_origin.x, self->chunks_origin.z }});
     return (p.x * self->chunks_size) + p.y;
 }
 
 // array index -> heightmap offset
-static inline ivec2s world_heightmap_offset(struct World *self, size_t i) {
-    return (ivec2s) {{
-        self->chunks_origin.x + (i / self->chunks_size),
-        self->chunks_origin.z + (i % self->chunks_size)
-    }};
+static inline ivec2s world_heightmap_offset(const struct World *self, const size_t i) {
+    return (ivec2s) {
+        .raw = {
+            (unsigned long)self->chunks_origin.x + (i / self->chunks_size),
+            (size_t)self->chunks_origin.z + (i % self->chunks_size)
+        }
+    };
 }
 
 // returns the heightmap for the specified chunk

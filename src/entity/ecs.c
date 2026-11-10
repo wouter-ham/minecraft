@@ -10,9 +10,9 @@
         ((_pl)->components) + ((_i) * ECSCL_ELEMENT_SIZE(_pl)) + ECS_TAG_SIZE;\
     })
 
-void _ecs_register_internal(
-    enum ECSComponent id, size_t component_size,
-    struct ECS *ecs, union ECSSystem system) {
+void ecs_register_internal(
+    const enum ECSComponent id, const size_t component_size,
+    struct ECS *ecs, const union ECSSystem system) {
     struct ComponentList list = {
         .component_size = component_size,
         .system = system
@@ -21,12 +21,12 @@ void _ecs_register_internal(
     ecs->lists[id] = list;
 }
 
-void ecs_event(struct ECS *self, enum ECSEvent event) {
+void ecs_event(struct ECS *self, const enum ECSEvent event) {
     for (size_t i = 0; i <= ECSCOMPONENT_LAST; i++) {
         struct ComponentList *list = &self->lists[i];
         
         // get this component's subscriber for this event
-        ECSSubscriber f = list->system.subscribers[event];
+        const ECSSubscriber f = list->system.subscribers[event];
         if (f == NULL) {
             continue;
         }
@@ -53,7 +53,7 @@ struct Entity ecs_new(struct ECS *self) {
     }
 
     if (i == self->capacity) {
-        size_t old_capacity = self->capacity;
+        const size_t old_capacity = self->capacity;
         self->capacity *= 2;
 
         // reallocate bitmap, clear new allocation
@@ -91,7 +91,7 @@ struct Entity ecs_new(struct ECS *self) {
     // mark this entity as used
     bitmap_set(self->used, i);
 
-    EntityId id = self->next_entity_id++;
+    const EntityId id = self->next_entity_id++;
     self->ids[i] = id;
 
     return (struct Entity) {
@@ -101,13 +101,13 @@ struct Entity ecs_new(struct ECS *self) {
     };
 }
 
-void ecs_delete(struct ECS *self, struct Entity entity) {
+void ecs_delete(struct ECS *self, const struct Entity entity) {
     assert(bitmap_get(self->used, entity.index));
 
     // remove components
     for (size_t j = 0; j <= ECSCOMPONENT_LAST; j++) {
         struct ComponentList *list = &self->lists[j];
-        ECSSubscriber destroy = list->system.destroy;
+        const ECSSubscriber destroy = list->system.destroy;
 
         // mark this component as unused
         void *component = ECSCL_GET(list, entity.index);
@@ -126,9 +126,9 @@ void ecs_delete(struct ECS *self, struct Entity entity) {
     self->ids[entity.index] = ENTITY_NONE;
 }
 
-void _ecs_add_internal(struct Entity entity, enum ECSComponent component_id, void *value) {
+void ecs_add_internal(const struct Entity entity, const enum ECSComponent component_id, const void *value) {
     struct ComponentList *list = &entity.ecs->lists[component_id];
-    ECSSubscriber init = list->system.init;
+    const ECSSubscriber init = list->system.init;
     void *component = ECSCL_GET(list, entity.index);
 
     // mark the component as used
@@ -145,9 +145,9 @@ void _ecs_add_internal(struct Entity entity, enum ECSComponent component_id, voi
     }
 }
 
-void ecs_remove(struct Entity entity, enum ECSComponent component_id) {
+void ecs_remove(const struct Entity entity, const enum ECSComponent component_id) {
     struct ComponentList *list = &entity.ecs->lists[component_id];
-    ECSSubscriber destroy = list->system.destroy;
+    const ECSSubscriber destroy = list->system.destroy;
     void *component = ECSCL_GET(list, entity.index);
 
     // mark the component as unused
@@ -160,11 +160,11 @@ void ecs_remove(struct Entity entity, enum ECSComponent component_id) {
     }
 }
 
-bool ecs_has(struct Entity entity, enum ECSComponent component) {
+bool ecs_has(const struct Entity entity, const enum ECSComponent component) {
     return ECS_TAG(ECSCL_GET(&entity.ecs->lists[component], entity.index)) & ECS_TAG_USED;
 }
 
-void *ecs_get(struct Entity entity, enum ECSComponent component) {
+void *ecs_get(const struct Entity entity, const enum ECSComponent component) {
     assert(ecs_has(entity, component));
     return ECSCL_GET(&entity.ecs->lists[component], entity.index);
 }
@@ -177,10 +177,10 @@ void ecs_init(struct ECS *self, struct World *world) {
     self->world = world;
 
     // defined in ecs.h
-    _ecs_init_internal(self);
+    ecs_init_internal(self);
 }
 
-void ecs_destroy(struct ECS *self) {
+void ecs_destroy(const struct ECS *self) {
     free(self->used);
     free(self->ids);
 

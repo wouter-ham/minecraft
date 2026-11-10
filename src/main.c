@@ -7,7 +7,7 @@
 // global state
 struct State state;
 
-void init(void) {
+static void init(void) {
     block_init();
     state.window = &window;
     renderer_init(&state.renderer);
@@ -64,19 +64,19 @@ void init(void) {
     c_control->mouse_sensitivity = 3.0f;
 
     struct PositionComponent *c_position = ecs_get(player, C_POSITION);
-    c_position->position = (vec3s) {{0, 80, 0}};
+    c_position->position = (vec3s) {.raw = {0, 80, 0}};
 
     state.world.entity_load = player;
     state.world.entity_view = player;
 }
 
-void destroy(void) {
+static void destroy(void) {
     renderer_destroy(&state.renderer);
     world_destroy(&state.world);
     ui_destroy(&state.ui);
 }
 
-void tick(void) {
+static void tick(void) {
     state.ticks++;
     world_tick(&state.world);
     ui_tick(&state.ui);
@@ -91,7 +91,7 @@ void tick(void) {
     }
 }
 
-void update(void) {
+static void update(void) {
     renderer_update(&state.renderer);
     world_update(&state.world);
     ui_update(&state.ui);
@@ -107,7 +107,7 @@ void update(void) {
     }
 }
 
-void render(void) {
+static void render(void) {
     renderer_prepare(&state.renderer, PASS_3D);
     world_render(&state.world);
 

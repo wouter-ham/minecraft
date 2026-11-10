@@ -37,13 +37,13 @@ struct World;
 #define chunk_pos_to_index(p) (p.x * CHUNK_SIZE.x * CHUNK_SIZE.z + p.z * CHUNK_SIZE.z + p.y)
 
 // returns true if pos is within chunk boundaries
-static inline bool chunk_in_bounds(ivec3s pos) {
+static inline bool chunk_in_bounds(const ivec3s pos) {
     return pos.x >= 0 && pos.y >= 0 && pos.z >= 0 &&
         pos.x < CHUNK_SIZE.x && pos.y < CHUNK_SIZE.y && pos.z < CHUNK_SIZE.z;
 }
 
 // returns true if pos is on chunk boundaries (borders another chunk)
-static inline bool chunk_on_bounds(ivec3s pos) {
+static inline bool chunk_on_bounds(const ivec3s pos) {
     return pos.x == 0 || pos.y == 0 || pos.z == 0 ||
         pos.x == (CHUNK_SIZE.x - 1) || pos.y == (CHUNK_SIZE.y - 1) || pos.z == (CHUNK_SIZE.z - 1);
 }

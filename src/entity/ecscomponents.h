@@ -10,19 +10,19 @@
 #include "c_debug.h"
 #include "c_light.h"
 
-#define _ECS_DECL_COMPONENT(_name)\
-    extern void _name##_init();\
+#define ECS_DECL_COMPONENT(_name)\
+    extern void _name##_init(struct ECS *ecs);\
     _name##_init(ecs);
 
-static inline void _ecs_init_internal(struct ECS *ecs) {
-    _ECS_DECL_COMPONENT(c_position);
-    _ECS_DECL_COMPONENT(c_camera);
-    _ECS_DECL_COMPONENT(c_control);
-    _ECS_DECL_COMPONENT(c_physics);
-    _ECS_DECL_COMPONENT(c_movement);
-    _ECS_DECL_COMPONENT(c_blocklook);
-    _ECS_DECL_COMPONENT(c_debug);
-    _ECS_DECL_COMPONENT(c_light);
+static inline void ecs_init_internal(struct ECS *ecs) {
+    ECS_DECL_COMPONENT(c_position);
+    ECS_DECL_COMPONENT(c_camera);
+    ECS_DECL_COMPONENT(c_control);
+    ECS_DECL_COMPONENT(c_physics);
+    ECS_DECL_COMPONENT(c_movement);
+    ECS_DECL_COMPONENT(c_blocklook);
+    ECS_DECL_COMPONENT(c_debug);
+    ECS_DECL_COMPONENT(c_light);
 }
 
 #define ECSCOMPONENT_LAST C_LIGHT

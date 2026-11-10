@@ -5,13 +5,13 @@
 
 // adapted from https://stackoverflow.com/questions/4300896/how-portable-is-the-re-entrant-qsort-r-function-compared-to-qsort
 
-struct _sort_data {
+struct sort_data {
     void *arg;
     int (*cmp)(const void *a, const void *b, void *arg);
 };
 
-static int _sort_r_arg_swap(void *s, const void *aa, const void *bb) {
-    struct _sort_data *ss = (struct _sort_data*) s;
+static int sort_r_arg_swap(void *s, const void *aa, const void *bb) {
+    const struct sort_data *ss = (struct sort_data*) s;
     return (ss->cmp)(aa, bb, ss->arg);
 }
 

@@ -1,4 +1,3 @@
-
 #include "worldgen.h"
 #include "noise.h"
 #include "../chunk.h"
@@ -7,12 +6,13 @@
 #define RADIAL2I(c, r, v)\
     (glms_vec2_norm(glms_vec2_sub(IVEC2S2V((c)), IVEC2S2V((v)))) / glms_vec2_norm(IVEC2S2V((r))))
 
-#define RADIAL3I(c, r, v)\ 
+#define RADIAL3I(c, r, v)\
     (glms_vec3_norm(glms_vec3_sub(IVEC3S2V((c)), IVEC3S2V((v)))) / glms_vec3_norm(IVEC3S2V((r))))
 
 #define WATER_LEVEL 0
 
 #define BIOME_LAST MOUNTAIN
+
 enum Biome {
     OCEAN,
     RIVER,
@@ -31,6 +31,7 @@ enum Biome {
 };
 
 #define MAX_DECORATIONS 8
+
 struct Decoration {
     FWGDecorate f;
     f32 chance;
@@ -42,7 +43,7 @@ struct BiomeData {
     struct Decoration decorations[MAX_DECORATIONS];
 };
 
-struct BiomeData BIOME_DATA[BIOME_LAST + 1] = {
+static struct BiomeData BIOME_DATA[BIOME_LAST + 1] = {
     [OCEAN] = {
         .top_block = SAND,
         .bottom_block = SAND,
@@ -71,7 +72,7 @@ struct BiomeData BIOME_DATA[BIOME_LAST + 1] = {
         .scale = 0.6f,
         .exp = 1.2f,
         .decorations = {
-            { .f = worldgen_shrub, .chance = 0.005f }
+            {.f = worldgen_shrub, .chance = 0.005f}
         }
     },
     [SAVANNA] = {
@@ -81,9 +82,9 @@ struct BiomeData BIOME_DATA[BIOME_LAST + 1] = {
         .scale = 1.0f,
         .exp = 1.0f,
         .decorations = {
-            { .f = worldgen_tree, .chance = 0.001f },
-            { .f = worldgen_flowers, .chance = 0.001f },
-            { .f = worldgen_grass, .chance = 0.005f },
+            {.f = worldgen_tree, .chance = 0.001f},
+            {.f = worldgen_flowers, .chance = 0.001f},
+            {.f = worldgen_grass, .chance = 0.005f},
         }
     },
     [JUNGLE] = {
@@ -93,9 +94,9 @@ struct BiomeData BIOME_DATA[BIOME_LAST + 1] = {
         .scale = 1.0f,
         .exp = 1.0f,
         .decorations = {
-            { .f = worldgen_tree, .chance = 0.01f },
-            { .f = worldgen_flowers, .chance = 0.001f },
-            { .f = worldgen_grass, .chance = 0.01f },
+            {.f = worldgen_tree, .chance = 0.01f},
+            {.f = worldgen_flowers, .chance = 0.001f},
+            {.f = worldgen_grass, .chance = 0.01f},
         }
     },
     [GRASSLAND] = {
@@ -105,9 +106,9 @@ struct BiomeData BIOME_DATA[BIOME_LAST + 1] = {
         .scale = 1.0f,
         .exp = 1.0f,
         .decorations = {
-            { .f = worldgen_tree, .chance = 0.0005f },
-            { .f = worldgen_flowers, .chance = 0.003f },
-            { .f = worldgen_grass, .chance = 0.02f },
+            {.f = worldgen_tree, .chance = 0.0005f},
+            {.f = worldgen_flowers, .chance = 0.003f},
+            {.f = worldgen_grass, .chance = 0.02f},
         }
     },
     [WOODLAND] = {
@@ -117,9 +118,9 @@ struct BiomeData BIOME_DATA[BIOME_LAST + 1] = {
         .scale = 1.0f,
         .exp = 1.0f,
         .decorations = {
-            { .f = worldgen_tree, .chance = 0.007f },
-            { .f = worldgen_flowers, .chance = 0.003f },
-            { .f = worldgen_grass, .chance = 0.008f },
+            {.f = worldgen_tree, .chance = 0.007f},
+            {.f = worldgen_flowers, .chance = 0.003f},
+            {.f = worldgen_grass, .chance = 0.008f},
         }
     },
     [FOREST] = {
@@ -129,9 +130,9 @@ struct BiomeData BIOME_DATA[BIOME_LAST + 1] = {
         .scale = 1.0f,
         .exp = 1.0f,
         .decorations = {
-            { .f = worldgen_tree, .chance = 0.009f },
-            { .f = worldgen_flowers, .chance = 0.003f },
-            { .f = worldgen_grass, .chance = 0.008f },
+            {.f = worldgen_tree, .chance = 0.009f},
+            {.f = worldgen_flowers, .chance = 0.003f},
+            {.f = worldgen_grass, .chance = 0.008f},
         }
     },
     [RAINFOREST] = {
@@ -141,9 +142,9 @@ struct BiomeData BIOME_DATA[BIOME_LAST + 1] = {
         .scale = 1.0f,
         .exp = 1.0f,
         .decorations = {
-            { .f = worldgen_tree, .chance = 0.009f },
-            { .f = worldgen_flowers, .chance = 0.003f },
-            { .f = worldgen_grass, .chance = 0.008f },
+            {.f = worldgen_tree, .chance = 0.009f},
+            {.f = worldgen_flowers, .chance = 0.003f},
+            {.f = worldgen_grass, .chance = 0.008f},
         }
     },
     [TAIGA] = {
@@ -153,9 +154,9 @@ struct BiomeData BIOME_DATA[BIOME_LAST + 1] = {
         .scale = 1.0f,
         .exp = 1.0f,
         .decorations = {
-            { .f = worldgen_pine, .chance = 0.006f },
-            { .f = worldgen_flowers, .chance = 0.001f },
-            { .f = worldgen_grass, .chance = 0.008f },
+            {.f = worldgen_pine, .chance = 0.006f},
+            {.f = worldgen_flowers, .chance = 0.001f},
+            {.f = worldgen_grass, .chance = 0.008f},
         }
     },
     [TUNDRA] = {
@@ -165,7 +166,7 @@ struct BiomeData BIOME_DATA[BIOME_LAST + 1] = {
         .scale = 1.0f,
         .exp = 1.0f,
         .decorations = {
-            { .f = worldgen_pine, .chance = 0.0005f }
+            {.f = worldgen_pine, .chance = 0.0005f}
         }
     },
     [ICE] = {
@@ -184,16 +185,16 @@ struct BiomeData BIOME_DATA[BIOME_LAST + 1] = {
     },
 };
 
-const enum Biome BIOME_TABLE[6][6] = {
-    { ICE, TUNDRA, GRASSLAND,   DESERT,     DESERT,     DESERT },
-    { ICE, TUNDRA, GRASSLAND,   GRASSLAND,  DESERT,     DESERT },
-    { ICE, TUNDRA, WOODLAND,    WOODLAND,   SAVANNA,    SAVANNA },
-    { ICE, TUNDRA, TAIGA,       WOODLAND,   SAVANNA,    SAVANNA },
-    { ICE, TUNDRA, TAIGA,       FOREST,     JUNGLE,     JUNGLE },
-    { ICE, TUNDRA, TAIGA,       TAIGA,      JUNGLE,     JUNGLE }
+static const enum Biome BIOME_TABLE[6][6] = {
+    {ICE, TUNDRA, GRASSLAND, DESERT, DESERT, DESERT},
+    {ICE, TUNDRA, GRASSLAND, GRASSLAND, DESERT, DESERT},
+    {ICE, TUNDRA, WOODLAND, WOODLAND, SAVANNA, SAVANNA},
+    {ICE, TUNDRA, TAIGA, WOODLAND, SAVANNA, SAVANNA},
+    {ICE, TUNDRA, TAIGA, FOREST, JUNGLE, JUNGLE},
+    {ICE, TUNDRA, TAIGA, TAIGA, JUNGLE, JUNGLE}
 };
 
-const f32 HEAT_MAP[] = {
+static constexpr f32 HEAT_MAP[] = {
     0.05f,
     0.18f,
     0.4f,
@@ -201,7 +202,7 @@ const f32 HEAT_MAP[] = {
     0.8f
 };
 
-const f32 MOISTURE_MAP[] = {
+static constexpr f32 MOISTURE_MAP[] = {
     0.2f,
     0.3f,
     0.5f,
@@ -214,13 +215,13 @@ const f32 MOISTURE_MAP[] = {
 // t = temperature [0, 1]
 // i = mountain noise [0, 1]
 // i = modified heightmap noise [0, 1]
-static enum Biome get_biome(f32 h, f32 m, f32 t, f32 n, f32 i) {
+static enum Biome get_biome(const f32 h, const f32 m, const f32 t, const f32 n, const f32 i) {
     if (h <= 0.0f || n <= 0.0f) {
         return OCEAN;
     } else if (h <= 0.005f) {
         return BEACH;
     }
-    
+
     if (n >= 0.1f && i >= 0.2f) {
         return MOUNTAIN;
     }
@@ -242,22 +243,21 @@ static enum Biome get_biome(f32 h, f32 m, f32 t, f32 n, f32 i) {
     return BIOME_TABLE[m_i][t_i];
 }
 
-static enum BlockId _get(struct Chunk *chunk, s32 x, s32 y, s32 z) {
-    ivec3s p = (ivec3s) {{ x, y, z }};
+static enum BlockId get(struct Chunk *chunk, const s32 x, const s32 y, const s32 z) {
+    const auto p = (ivec3s){.raw = {x, y, z}};
     if (chunk_in_bounds(p)) {
         return chunk_get_block(chunk, p);
-    } else {
-        return world_get_block(chunk->world, glms_ivec3_add(chunk->position, p));
     }
+    return world_get_block(chunk->world, glms_ivec3_add(chunk->position, p));
 }
 
-static void _set(struct Chunk *chunk, s32 x, s32 y, s32 z, u32 d) {
-    ivec3s p = (ivec3s){{x, y, z}};
+static void set(struct Chunk *chunk, const s32 x, const s32 y, const s32 z, const u32 d) {
+    const auto p = (ivec3s){.raw = {x, y, z}};
     if (chunk_in_bounds(p)) {
         chunk_set_block(chunk, p, d);
     }
-    
-    ivec3s p_w = glms_ivec3_add(chunk->position, p);
+
+    const ivec3s p_w = glms_ivec3_add(chunk->position, p);
     if (!world_contains(chunk->world, p_w)) {
         world_append_unloaded_block(chunk->world, p_w, d);
     } else {
@@ -295,30 +295,30 @@ void worldgen_generate(struct Chunk *chunk) {
         };
 
         struct Noise
-            n_h = expscale(&os[0], 1.3f, 1.0f / 128.0f),
-            n_m = expscale(&cs[0], 1.0f, 1.0f / 512.0f),
-            n_t = expscale(&cs[1], 1.0f, 1.0f / 512.0f),
-            n_r = expscale(&cs[2], 1.0f, 1.0f / 16.0f),
-            n_n = expscale(&cs[3], 3.0f, 1.0f / 512.0f),
-            n_p = expscale(&cs[4], 3.0f, 1.0f / 512.0f);
+        n_h = expscale(&os[0], 1.3f, 1.0f / 128.0f),
+        n_m = expscale(&cs[0], 1.0f, 1.0f / 512.0f),
+        n_t = expscale(&cs[1], 1.0f, 1.0f / 512.0f),
+        n_r = expscale(&cs[2], 1.0f, 1.0f / 16.0f),
+        n_n = expscale(&cs[3], 3.0f, 1.0f / 512.0f),
+        n_p = expscale(&cs[4], 3.0f, 1.0f / 512.0f);
 
         for (s64 x = 0; x < CHUNK_SIZE.x; x++) {
             for (s64 z = 0; z < CHUNK_SIZE.z; z++) {
                 s64 wx = chunk->position.x + x, wz = chunk->position.z + z;
 
-                f32 h = n_h.compute(&n_h.params, chunk->world->seed, wx, wz),
-                    m = n_m.compute(&n_m.params, chunk->world->seed, wx, wz) * 0.5f + 0.5f,
-                    t = n_t.compute(&n_t.params, chunk->world->seed, wx, wz) * 0.5f + 0.5f,
-                    r = n_r.compute(&n_r.params, chunk->world->seed, wx, wz),
-                    n = n_n.compute(&n_n.params, chunk->world->seed, wx, wz),
-                    p = n_p.compute(&n_p.params, chunk->world->seed, wx, wz);
+                f32 h = n_h.compute(&n_h.params, (float)chunk->world->seed, (float)wx, (float)wz),
+                        m = n_m.compute(&n_m.params, (float)chunk->world->seed, (float)wx, (float)wz) * 0.5f + 0.5f,
+                        t = n_t.compute(&n_t.params, (float)chunk->world->seed, (float)wx, (float)wz) * 0.5f + 0.5f,
+                        r = n_r.compute(&n_r.params, (float)chunk->world->seed, (float)wx, (float)wz),
+                        n = n_n.compute(&n_n.params, (float)chunk->world->seed, (float)wx, (float)wz),
+                        p = n_p.compute(&n_p.params, (float)chunk->world->seed, (float)wx, (float)wz);
 
                 // add 'peak' noise to mountain noise
                 n += safe_expf(p, (1.0f - n) * 3.0f);
 
                 // decrease moisture with distance from ocean
                 // m += 0.05f * n;
-                
+
                 // decrease temperature with height
                 t -= 0.4f * n;
                 t = clamp(t, 0.0f, 1.0f);
@@ -328,7 +328,7 @@ void worldgen_generate(struct Chunk *chunk) {
 
                 h = sign(h) * fabsf(powf(fabsf(h), biome.exp));
 
-                heightmap->worldgen_data[x * CHUNK_SIZE.x + z] = (struct WorldgenData) {
+                heightmap->worldgen_data[x * CHUNK_SIZE.x + z] = (struct WorldgenData){
                     .h_b = ((h * 32.0f) + (n * 256.0f)) * biome.scale + (biome.roughness * r * 2.0f),
                     .b = biome_id
                 };
@@ -349,7 +349,7 @@ void worldgen_generate(struct Chunk *chunk) {
                 v += (WG_GET_H(x - 1, z + 1)).h_b;
                 v += (WG_GET_H(x + 1, z + 1)).h_b;
                 v *= 0.25f;
-                WG_GET_H(x, z).h = v;
+                WG_GET_H(x, z).h = (long)v;
             }
         }
     }
@@ -359,10 +359,10 @@ void worldgen_generate(struct Chunk *chunk) {
             struct WorldgenData data = heightmap->worldgen_data[x * CHUNK_SIZE.x + z];
             s64 h = data.h;
             enum Biome biome = data.b;
-            struct BiomeData biome_data = BIOME_DATA[biome]; 
+            struct BiomeData biome_data = BIOME_DATA[biome];
 
             enum BlockId top_block = h > 48 ? SNOW : biome_data.top_block,
-                under_block = biome_data.bottom_block;
+            under_block = biome_data.bottom_block;
 
             for (s64 y = 0; y < CHUNK_SIZE.y; y++) {
                 s64 y_w = chunk->position.y + y;
@@ -381,7 +381,7 @@ void worldgen_generate(struct Chunk *chunk) {
                     block = STONE;
                 }
 
-                chunk_set_block(chunk, (ivec3s) {{ x, y, z }}, block);
+                chunk_set_block(chunk, (ivec3s){.raw = {(int)x, (int)y, (int)z}}, block);
 
                 if (y_w == h) {
                     // decorate
@@ -391,7 +391,7 @@ void worldgen_generate(struct Chunk *chunk) {
                         }
 
                         if (RANDCHANCE(biome_data.decorations[i].chance)) {
-                            biome_data.decorations[i].f(chunk, _get, _set, x, y, z);
+                            biome_data.decorations[i].f(chunk, get, set, x, y, z);
                         }
                     }
                 }

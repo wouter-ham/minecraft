@@ -5,8 +5,9 @@
 
 // forward declarations
 struct World;
+struct ECS;
 
-#define ecs_register(_id, _C, _ecs, _system) _ecs_register_internal((_id), sizeof(_C), (_ecs), (_system))
+#define ecs_register(_id, _C, _ecs, _system) ecs_register_internal((_id), sizeof(_C), (_ecs), (_system))
 
 typedef u64 ECSTag;
 
@@ -48,14 +49,14 @@ struct ECS {
     struct World *world;
 };
 
-void _ecs_register_internal(
+void ecs_register_internal(
     enum ECSComponent id, size_t component_size,
     struct ECS *ecs, union ECSSystem system);
 
-void _ecs_add_internal(struct Entity entity, enum ECSComponent component_id, void *value);
+void ecs_add_internal(struct Entity entity, enum ECSComponent component_id, const void *value);
 
-#define _ecs_add3(e, c, v) ({ __typeof__(v) _v = (v); _ecs_add_internal((e), (c), &_v); })
-#define _ecs_add2(e, c) _ecs_add_internal((e), (c), NULL)
+#define _ecs_add3(e, c, v) ({ __typeof__(v) _v = (v); ecs_add_internal((e), (c), &_v); })
+#define _ecs_add2(e, c) ecs_add_internal((e), (c), NULL)
 
 #define _ecs_add_overload(_1,_2,_3,NAME,...) NAME
 #define ecs_add(...) _ecs_add_overload(__VA_ARGS__, _ecs_add3, _ecs_add2)(__VA_ARGS__)
@@ -67,6 +68,6 @@ void ecs_remove(struct Entity entity, enum ECSComponent component);
 bool ecs_has(struct Entity entity, enum ECSComponent component);
 void *ecs_get(struct Entity entity, enum ECSComponent component);
 void ecs_init(struct ECS *self, struct World *world);
-void ecs_destroy(struct ECS *self);
+void ecs_destroy(const struct ECS *self);
 
 #endif

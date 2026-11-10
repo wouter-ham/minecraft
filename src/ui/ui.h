@@ -32,16 +32,16 @@ struct UI {
 extern struct UIComponent hotbar_init(struct UIHotbar *self);
 extern struct UIComponent inventory_init(struct UIInventory *self);
 
-#define _UI_COMPONENT(_type, _name, _member)\
+#define UI_COMPONENT(_type, _name, _member)\
     extern struct UIComponent _name##_init(_type *self);\
     assert(self->components.count != UI_COMPONENTS_MAX);\
     self->components.elements[self->components.count++] = _name##_init(&self->_member);\
     self->components.elements[self->components.count - 1].enabled = true;
 
 static inline void ui_init(struct UI *self) {
-    _UI_COMPONENT(struct UIHotbar, hotbar, hotbar);
-    _UI_COMPONENT(struct UIInventory, inventory, inventory);
-    _UI_COMPONENT(struct UICrosshair, crosshair, crosshair);
+    UI_COMPONENT(struct UIHotbar, hotbar, hotbar);
+    UI_COMPONENT(struct UIInventory, inventory, inventory);
+    UI_COMPONENT(struct UICrosshair, crosshair, crosshair);
 }
 
 void ui_destroy(struct UI *self);

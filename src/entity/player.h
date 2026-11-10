@@ -28,7 +28,7 @@ struct EntityPlayer {
 
 void player_init(struct EntityPlayer *self, struct World *world);
 void player_destroy(struct EntityPlayer *self);
-void player_render(struct EntityPlayer *self);
+void player_render(const struct EntityPlayer *self);
 void player_update(struct EntityPlayer *self);
 void player_tick(struct EntityPlayer *self);
 

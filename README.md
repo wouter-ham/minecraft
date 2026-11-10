@@ -1,6 +1,4 @@
-# Minecraft, but I made it in 48 hours*
-
-\* I've actually updated it since - [see this commit for the 48 hour version](https://github.com/jdah/minecraft-weekend/tree/cb19738305804b5734faa7118c1c784f26ff9463).
+# Minecraft clone
 
 ![screenshot](screenshots/1.png)
 
@@ -38,7 +36,3 @@ The game binary, once built with `$ make`, can be found in `./bin/`.
 
 *Be sure* to run with `$ ./bin/game` out of the root directory of the repository.
 If you are getting "cannot open file" errors (such as "cannot find ./res/shaders/*.vs"), this is the issue. 
-
-##### Windows
-
-good luck 🤷‍♂️ probably try building under WSL and using an X environment to pass graphics through.

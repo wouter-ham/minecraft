@@ -2,12 +2,13 @@
 #define WORLDGEN_H
 
 #include "../../util/util.h"
+#include "../../block/block.h"
 
 // forward declarations
 struct Chunk;
 
 typedef void (*FWGSet)(struct Chunk *, s32, s32, s32, u32);
-typedef u32 (*FWGGet)(struct Chunk *, s32, s32, s32);
+typedef enum BlockId (*FWGGet)(struct Chunk *, s32, s32, s32);
 typedef void (*FWGDecorate)(struct Chunk  *, FWGGet, FWGSet, s64, s64, s64);
 
 struct WorldgenData {

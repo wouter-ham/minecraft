@@ -3,8 +3,8 @@
 #include "../world/world.h"
 
 static void tick(struct PositionComponent *c_position, struct Entity entity) {
-    ivec3s block = world_pos_to_block(c_position->position);
-    ivec3s offset = world_pos_to_offset(block);
+    const ivec3s block = world_pos_to_block(c_position->position);
+    const ivec3s offset = world_pos_to_offset(block);
 
     if (ivec3scmp(block, c_position->block)) {
         c_position->block = block;

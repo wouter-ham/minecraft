@@ -7,4 +7,6 @@ struct UICrosshair {
     bool enabled;
 };
 
+struct UIComponent crosshair_init(struct UICrosshair *self);
+
 #endif

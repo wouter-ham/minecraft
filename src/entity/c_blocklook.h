@@ -2,6 +2,7 @@
 #define C_BLOCKLOOK_H
 
 #include "../util/util.h"
+#include "ecs.h"
 
 struct BlockLookComponent {
     bool hit;
@@ -13,5 +14,7 @@ struct BlockLookComponent {
         bool render : 1;
     } flags;
 };
+
+void c_blocklook_init(struct ECS *ecs);
 
 #endif

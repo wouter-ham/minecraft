@@ -3,18 +3,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// global window
 struct Window window;
 
-static void _size_callback(GLFWwindow *handle, int width, int height) {
+static void size_callback(GLFWwindow *handle, const int width, const int height) {
     glViewport(0, 0, width, height);
-    window.size = (ivec2s) {{width, height}};
+    window.size = (ivec2s){.raw = {width, height}};
 }
 
-static void _cursor_callback(GLFWwindow *handle, double xp, double yp) {
-    vec2s p = {{xp, yp}};
+static void cursor_callback(GLFWwindow *handle, const double xp, const double yp) {
+    const vec2s p = {.raw = {(float) xp, (float) yp}};
 
-    if (mouse_get_grabbed()){
+    if (mouse_get_grabbed()) {
         window.mouse.delta = glms_vec2_sub(p, window.mouse.position);
         window.mouse.delta.x = clamp(window.mouse.delta.x, -100.0f, 100.0f);
         window.mouse.delta.y = clamp(window.mouse.delta.y, -100.0f, 100.0f);
@@ -23,7 +22,7 @@ static void _cursor_callback(GLFWwindow *handle, double xp, double yp) {
     window.mouse.position = p;
 }
 
-static void _key_callback(GLFWwindow *handle, int key, int scancode, int action, int mods) {
+static void key_callback(GLFWwindow *handle, const int key, int scancode, const int action, int mods) {
     if (key < 0) {
         return;
     }
@@ -40,7 +39,7 @@ static void _key_callback(GLFWwindow *handle, int key, int scancode, int action,
     }
 }
 
-static void _mouse_callback(GLFWwindow *handle, int button, int action, int mods) {
+static void mouse_callback(GLFWwindow *handle, int button, int action, int mods) {
     if (button < 0) {
         return;
     }
@@ -57,11 +56,11 @@ static void _mouse_callback(GLFWwindow *handle, int button, int action, int mods
     }
 }
 
-static void _error_callback(int code, const char *description) {
+static void error_callback(int code, const char *description) {
     fprintf(stderr, "GLFW error %d: %s\n", code, description);
 }
 
-void window_create(FWindow init, FWindow destroy, FWindow tick,  FWindow update, FWindow render) {
+void window_create(FWindow init, FWindow destroy, FWindow tick, FWindow update, FWindow render) {
     window.init = init;
     window.destroy = destroy;
     window.tick = tick;
@@ -71,23 +70,23 @@ void window_create(FWindow init, FWindow destroy, FWindow tick,  FWindow update,
     window.last_frame = NOW();
     window.last_second = NOW();
 
-    glfwSetErrorCallback(_error_callback);
+    glfwSetErrorCallback(error_callback);
 
-    if (!glfwInit()){
-        fprintf(stderr, "%s",  "error initializing GLFW\n");
+    if (!glfwInit()) {
+        fprintf(stderr, "%s", "error initializing GLFW\n");
         exit(1);
     }
 
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    window.size = (ivec2s) {{1280, 720}};
+    window.size = (ivec2s){{1280, 720}};
     window.handle = glfwCreateWindow(window.size.x, window.size.y, "Minecraft", NULL, NULL);
     if (window.handle == NULL) {
-        fprintf(stderr, "%s",  "error creating window\n");
+        fprintf(stderr, "%s", "error creating window\n");
         glfwTerminate();
         exit(1);
     }
@@ -95,13 +94,13 @@ void window_create(FWindow init, FWindow destroy, FWindow tick,  FWindow update,
     glfwMakeContextCurrent(window.handle);
 
     // configure callbacks
-    glfwSetFramebufferSizeCallback(window.handle, _size_callback);
-    glfwSetCursorPosCallback(window.handle, _cursor_callback);
-    glfwSetKeyCallback(window.handle, _key_callback);
-    glfwSetMouseButtonCallback(window.handle, _mouse_callback);
+    glfwSetFramebufferSizeCallback(window.handle, size_callback);
+    glfwSetCursorPosCallback(window.handle, cursor_callback);
+    glfwSetKeyCallback(window.handle, key_callback);
+    glfwSetMouseButtonCallback(window.handle, mouse_callback);
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-        fprintf(stderr, "%s",  "error initializing GLAD\n");
+        fprintf(stderr, "%s", "error initializing GLAD\n");
         glfwTerminate();
         exit(1);
     }
@@ -123,23 +122,23 @@ static void button_array_update(size_t n, struct Button *buttons) {
     }
 }
 
-static void _init(void) {
+static void init(void) {
     window.init();
 }
 
-static void _destroy(void) {
+static void destroy(void) {
     window.destroy();
     glfwTerminate();
 }
 
-static void _tick(void) {
+static void tick(void) {
     window.ticks++;
     button_array_tick(GLFW_MOUSE_BUTTON_LAST, window.mouse.buttons);
     button_array_tick(GLFW_KEY_LAST, window.keyboard.keys);
     window.tick();
 }
 
-static void _update(void) {
+static void update(void) {
     button_array_update(GLFW_MOUSE_BUTTON_LAST, window.mouse.buttons);
     button_array_update(GLFW_KEY_LAST, window.keyboard.keys);
     window.update();
@@ -148,13 +147,13 @@ static void _update(void) {
     window.mouse.delta = GLMS_VEC2_ZERO;
 }
 
-static void _render(void) {
+static void render(void) {
     window.frames++;
     window.render();
 }
 
 void window_loop(void) {
-    _init();
+    init();
 
     while (!glfwWindowShouldClose(window.handle)) {
         const u64 now = NOW();
@@ -169,25 +168,25 @@ void window_loop(void) {
             window.ticks = 0;
             window.last_second = now;
 
-            printf("FPS: %lld | TPS: %lld\n", window.fps, window.tps);
+            printf("FPS: %ld | TPS: %ld\n", window.fps, window.tps);
         }
 
         // tick processing
         const u64 NS_PER_TICK = (NS_PER_SECOND / 60);
         u64 tick_time = window.frame_delta + window.tick_remainder;
         while (tick_time > NS_PER_TICK) {
-            _tick();
+            tick();
             tick_time -= NS_PER_TICK;
         }
         window.tick_remainder = max(tick_time, 0);
 
-        _update();
-        _render();
+        update();
+        render();
         glfwSwapBuffers(window.handle);
         glfwPollEvents();
     }
 
-    _destroy();
+    destroy();
     exit(0);
 }
 

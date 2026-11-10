@@ -6,7 +6,6 @@
 #include "../world/blockmesh.h"
 #include "../world/light.h"
 
-// Forward declaration
 struct World;
 
 #define BLOCK_ID_LAST PINE_LEAVES
@@ -41,16 +40,12 @@ enum BlockId {
 struct Block {
     enum BlockId id;
 
-    // if true, this block is treated as it is transparent
     bool transparent;
 
-    // if true, this block is treated like a liquid
     bool liquid;
 
-    // if true, this block is treated as a light source
     bool can_emit_light;
 
-    // if true, this block's textures are determined with get_animation_frames
     bool animated;
 
     // the mesh type of this block, see blockmesh.h
@@ -59,14 +54,13 @@ struct Block {
     // if true, then this block's aabb is determined by get_aabb
     bool solid;
 
-    // gravity modifier for non-solid blocks
     f32 gravity_modifier;
 
     // drag for non-solid blocks
     f32 drag;
 
-    // sliperiness for solid blocks
-    f32 sliperiness;
+    // slipperiness for solid blocks
+    f32 slipperiness;
 
     ivec2s (*get_texture_location)(struct World *world, ivec3s pos, enum Direction d);
     void (*get_mesh_information)(
@@ -83,36 +77,6 @@ struct Block {
 extern struct Block BLOCK_DEFAULT;
 extern struct Block BLOCKS[MAX_BLOCK_ID];
 
-#define _BLOCK_DECL(_name)\
-    extern void _name##_init();\
-    _name##_init();
-
-static inline void block_init(void) {
-    _BLOCK_DECL(air);
-    _BLOCK_DECL(grass);
-    _BLOCK_DECL(dirt);
-    _BLOCK_DECL(stone);
-    _BLOCK_DECL(sand);
-    _BLOCK_DECL(water);
-    _BLOCK_DECL(glass);
-    _BLOCK_DECL(log);
-    _BLOCK_DECL(leaves);
-    _BLOCK_DECL(rose);
-    _BLOCK_DECL(buttercup);
-    _BLOCK_DECL(coal);
-    _BLOCK_DECL(copper);
-    _BLOCK_DECL(lava);
-    _BLOCK_DECL(clay);
-    _BLOCK_DECL(gravel);
-    _BLOCK_DECL(planks);
-    _BLOCK_DECL(torch);
-    _BLOCK_DECL(cobblestone);
-    _BLOCK_DECL(snow);
-    _BLOCK_DECL(podzol);
-    _BLOCK_DECL(shrub);
-    _BLOCK_DECL(tallgrass);
-    _BLOCK_DECL(pine_log);
-    _BLOCK_DECL(pine_leaves);
-}
+void block_init();
 
 #endif

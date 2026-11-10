@@ -24,4 +24,6 @@ struct MovementComponent {
     } flags;
 };
 
+void c_movement_init(struct ECS *ecs);
+
 #endif

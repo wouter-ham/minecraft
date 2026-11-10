@@ -103,7 +103,7 @@ static void tick(struct PhysicsComponent *c_physics, struct Entity entity) {
     }
 
     if (c_physics->flags.grounded) {
-        const f32 sliperiness = block.sliperiness * 0.6f;
+        const f32 sliperiness = block.slipperiness * 0.6f;
         c_physics->velocity.x *= sliperiness;
         c_physics->velocity.z *= sliperiness;
     }
