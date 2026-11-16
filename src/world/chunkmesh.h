@@ -90,7 +90,7 @@ struct ChunkMesh {
 };
 
 struct ChunkMesh *chunkmesh_create(struct Chunk *chunk);
-void chunkmesh_destroy(struct ChunkMesh *self);
+void chunkmesh_destroy(const struct ChunkMesh *self);
 void chunkmesh_prepare_render(struct ChunkMesh *self);
 void chunkmesh_render(struct ChunkMesh *self, enum ChunkMeshPart part);
 void chunkmesh_set_persist(struct ChunkMesh *self, bool persist);

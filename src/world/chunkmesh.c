@@ -2,7 +2,7 @@
 #include "chunk.h"
 
 // Buffer sizes (in bytes) corresponding to BufferType
-static const size_t BUFFER_SIZES[3] = {
+static constexpr size_t BUFFER_SIZES[3] = {
     (CHUNK_VOLUME / 2) * 6 * 6 * 8 * sizeof(f32),
     (CHUNK_VOLUME / 2) * 6 * 6 * sizeof(u32),
     (CHUNK_VOLUME / 2) * 6 * sizeof(struct Face)
@@ -17,13 +17,13 @@ static const size_t BUFFER_SIZES[3] = {
         chunk_get_data(c, p) :\
         world_get_data(c->world, glms_ivec3_add(c->position, p));})
 
-static void buffer_init(struct ChunkMeshBuffer *self, enum BufferType type) {
+static void buffer_init(struct ChunkMeshBuffer *self, const enum BufferType type) {
     memset(self, 0, sizeof(struct ChunkMeshBuffer));
     self->type = type;
     self->capacity = BUFFER_SIZES[type];
 }
 
-static void buffer_destroy(struct ChunkMeshBuffer *self) {
+static void buffer_destroy(const struct ChunkMeshBuffer *self) {
     if (self->data != NULL) {
         free(self->data);
     }
@@ -43,7 +43,7 @@ struct ChunkMesh *chunkmesh_create(struct Chunk *chunk) {
     return self;
 }
 
-void chunkmesh_destroy(struct ChunkMesh *self) {
+void chunkmesh_destroy(const struct ChunkMesh *self) {
     vao_destroy(self->vao);
     vbo_destroy(self->vbo);
     vbo_destroy(self->ibo);
@@ -118,12 +118,12 @@ static int depth_cmp(const struct Face *a, const struct Face *b) {
     return (int) -sign(a->distance - b->distance);
 }
 
-static void chunkmesh_sort(struct ChunkMesh *self, enum SortKind kind) {
-    vec3s center = ((struct PositionComponent *) ecs_get(self->chunk->world->entity_view, C_POSITION))->position;
+static void chunkmesh_sort(struct ChunkMesh *self, const enum SortKind kind) {
+    const vec3s center = ((struct PositionComponent *) ecs_get(self->chunk->world->entity_view, C_POSITION))->position;
 
-    struct ChunkMeshBuffer
-        *faces = &self->buffers[FACES],
-        *indices = &self->buffers[INDICES];
+    const struct ChunkMeshBuffer *faces = &self->buffers[FACES];
+    const struct ChunkMeshBuffer
+    *indices = &self->buffers[INDICES];
 
     assert(faces->data != NULL);
     assert(indices->data != NULL);
@@ -137,24 +137,24 @@ static void chunkmesh_sort(struct ChunkMesh *self, enum SortKind kind) {
 
     // calulate face distances
     for (size_t i = 0; i < faces->elements; i++) {
-        struct Face *face = &((struct Face*) faces->data)[i];
+        struct Face *face = &((struct Face *) faces->data)[i];
         face->distance = glms_vec3_norm2(glms_vec3_sub(center, face->position));
     }
 
     // sort faces
     qsort(
         faces->data, faces->elements, sizeof(struct Face),
-        (int (*)(const void*, const void*)) depth_cmp);
+        (int (*)(const void *, const void *)) depth_cmp);
 
-    Bitmap moved = kind == SORT_FULL ? bitmap_calloc(indices->elements / 6) : NULL;
+    const Bitmap moved = kind == SORT_FULL ? bitmap_calloc(indices->elements / 6) : nullptr;
 
     // iterate over sorted faces: move them (in order) into the front of the index buffer
     for (size_t i = 0; i < faces->elements; i++) {
-        struct Face *face = &((struct Face*) faces->data)[i];
+        struct Face *face = &((struct Face *) faces->data)[i];
         if (face->indices_base != i * 6) {
             memcpy(
-                &((u32*) indices->data)[i * 6],
-                &((u32*) t_indices.data)[face->indices_base],
+                &((u32 *) indices->data)[i * 6],
+                &((u32 *) t_indices.data)[face->indices_base],
                 6 * sizeof(u32)
             );
         }
@@ -178,8 +178,8 @@ static void chunkmesh_sort(struct ChunkMesh *self, enum SortKind kind) {
         for (size_t i = 0; i < (indices->elements / 6); i++) {
             if (!bitmap_get(moved, i)) {
                 memcpy(
-                    &((u32*) indices->data)[self->indices.base.offset + self->indices.base.count],
-                    &((u32*) t_indices.data)[i * 6],
+                    &((u32 *) indices->data)[self->indices.base.offset + self->indices.base.count],
+                    &((u32 *) t_indices.data)[i * 6],
                     6 * sizeof(u32)
                 );
                 self->indices.base.count += 6;
@@ -203,47 +203,53 @@ static void chunkmesh_mesh(struct ChunkMesh *self) {
     chunk_foreach(pos) {
         struct BlockMeshParams params;
         params.position = IVEC3S2V(pos);
-        params.data = chunk->data[chunk_pos_to_index(pos)];        
+        params.data = chunk->data[chunk_pos_to_index(pos)];
 
         enum BlockId block_id = chunk_data_to_block(params.data);
         ivec3s pos_w = glms_ivec3_add(pos, chunk->position);
 
-        if(block_id != AIR) {
+        if (block_id != AIR) {
             params.block = &BLOCKS[block_id];
-            
+
             switch (params.block->mesh_type) {
                 case BLOCKMESH_SPRITE:
-                    atlas_get(
-                        block_atlas->atlas,
-                        params.block->get_texture_location(chunk->world, pos_w, 0),
-                        &params.uv_min, &params.uv_max);
+                    if (params.block->get_texture_location != NULL) {
+                        atlas_get(
+                            block_atlas->atlas,
+                            params.block->get_texture_location(chunk->world, pos_w, 0),
+                            &params.uv_min, &params.uv_max
+                        );
+                    }
                     blockmesh_sprite(self, params);
                     break;
                 case BLOCKMESH_CUSTOM:
                 case BLOCKMESH_DEFAULT:
                 case BLOCKMESH_LIQUID:
-                    params.offset = (vec3s) {{ 0, 0, 0 }};
-                    params.size = (vec3s) {{ 1, 1, 1 }};
+                    params.offset = (vec3s){.raw = {0, 0, 0}};
+                    params.size = (vec3s){.raw = {1, 1, 1}};
 
                     for (enum Direction d = 0; d < 6; d++) {
                         ivec3s d_v = DIR2IVEC3S(d);
                         ivec3s n = glms_ivec3_add(pos, d_v);
-                        
+
                         params.data_n = CHUNK_WORLD_GET_DATA(chunk, n);
                         params.block_n = &BLOCKS[chunk_data_to_block(params.data_n)];
 
                         if (params.block->mesh_type == BLOCKMESH_CUSTOM ||
                             (params.block_n->transparent && !params.block->transparent) ||
                             (params.block->transparent &&
-                                params.block_n->transparent &&
-                                params.block_n->id != params.block->id)) {
+                             params.block_n->transparent &&
+                             params.block_n->id != params.block->id)) {
                             params.direction = d;
 
-                            // get base UV coordinates
-                            atlas_get(
-                                block_atlas->atlas,
-                                params.block->get_texture_location(chunk->world, pos_w, d),
-                                &params.uv_min, &params.uv_max);
+                            if (params.block->get_texture_location != NULL) {
+                                // get base UV coordinates
+                                atlas_get(
+                                    block_atlas->atlas,
+                                    params.block->get_texture_location(chunk->world, pos_w, d),
+                                    &params.uv_min, &params.uv_max
+                                );
+                            }
 
                             // get custom mesh parameters for this face
                             if (params.block->mesh_type == BLOCKMESH_CUSTOM) {
@@ -251,15 +257,18 @@ static void chunkmesh_mesh(struct ChunkMesh *self) {
                                 params.block->get_mesh_information(
                                     chunk->world, pos, params.direction,
                                     &params.offset, &params.size,
-                                    &uv_offset_px, &uv_size_px);
+                                    &uv_offset_px, &uv_size_px
+                                );
 
                                 // offset UV coordinates
                                 vec2s uv_offset = glms_vec2_mul(
-                                    IVEC2S2V(uv_offset_px),
-                                    block_atlas->atlas.pixel_unit),
-                                    uv_size = glms_vec2_mul(
-                                    IVEC2S2V(uv_size_px),
-                                    block_atlas->atlas.pixel_unit);
+                                            IVEC2S2V(uv_offset_px),
+                                            block_atlas->atlas.pixel_unit
+                                        ),
+                                        uv_size = glms_vec2_mul(
+                                            IVEC2S2V(uv_size_px),
+                                            block_atlas->atlas.pixel_unit
+                                        );
 
                                 params.uv_min = glms_vec2_add(params.uv_min, uv_offset);
                                 params.uv_max = glms_vec2_add(params.uv_min, uv_size);
@@ -343,7 +352,7 @@ void chunkmesh_set_persist(struct ChunkMesh *self, bool persist) {
     if (!self->flags.persist) {
         free(self->buffers[INDICES].data);
         free(self->buffers[FACES].data);
-        
+
         self->buffers[INDICES].data = NULL;
         self->buffers[FACES].data = NULL;
     }

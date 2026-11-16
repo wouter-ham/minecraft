@@ -13,7 +13,7 @@ static Torchlight get_torchlight(struct World *world, ivec3s pos) {
     return 0x0000;
 }
 
-static void get_aabb(struct World *world, ivec3s pos, AABB dest) {
+static void get_aabb(struct World *world, const ivec3s pos, AABB dest) {
     dest[0] = IVEC3S2V(pos);
     dest[1] = (vec3s) {.raw = {(f32) pos.x + 1.0f, (f32) pos.y + 1.0f, (f32) pos.z + 1.0f}};
 }

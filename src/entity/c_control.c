@@ -2,7 +2,7 @@
 
 #include "../state.h"
 
-static void update(struct ControlComponent *c_control, struct Entity entity) {
+static void update(const struct ControlComponent *c_control, struct Entity entity) {
     struct CameraComponent *c_camera = ecs_get(entity, C_CAMERA);
 
     c_camera->camera.pitch -= state.window->mouse.delta.y /
@@ -16,8 +16,12 @@ static void update(struct ControlComponent *c_control, struct Entity entity) {
 }
 
 static void tick(struct ControlComponent *c_control, struct Entity entity) {
+    if (state.ui.inventory.visible) {
+        return;
+    }
+
     struct MovementComponent *c_movement = ecs_get(entity, C_MOVEMENT);
-    struct BlockLookComponent *c_blocklook = ecs_get(entity, C_BLOCKLOOK);
+    const struct BlockLookComponent *c_blocklook = ecs_get(entity, C_BLOCKLOOK);
     struct PhysicsComponent *c_physics = ecs_get(entity, C_PHYSICS);
 
     c_movement->directions.forward = state.window->keyboard.keys[GLFW_KEY_W].down;

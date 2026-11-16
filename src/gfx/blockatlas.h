@@ -17,7 +17,7 @@ struct BlockAtlas {
 };
 
 struct BlockAtlas blockatlas_create(char *path, ivec2s sprite_size);
-void blockatlas_destroy(struct BlockAtlas *self);
+void blockatlas_destroy(const struct BlockAtlas *self);
 void blockatlas_update(struct BlockAtlas *self);
 
 #endif

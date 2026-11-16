@@ -1,7 +1,7 @@
 UNAME_S = $(shell uname -s)
 
 CC = clang
-CFLAGS = -std=c23 -O3 -g -Wall -Wextra -Wpedantic -Wstrict-aliasing -D_GNU_SOURCE
+CFLAGS = -std=c23 -O3 -g -Wall -Wextra -Wpedantic -Wstrict-aliasing -D_GNU_SOURCE -MMD -MP
 CFLAGS += -Wno-pointer-arith -Wno-newline-eof -Wno-unused-parameter -Wno-gnu-statement-expression
 CFLAGS += -Wno-gnu-compound-literal-initializer -Wno-gnu-zero-variadic-macro-arguments -Wno-c2y-extensions
 CFLAGS += -Ilib/cglm/include -Ilib/glad/include -Ilib/glfw/include -Ilib/stb -Ilib/noise -fbracket-depth=1024

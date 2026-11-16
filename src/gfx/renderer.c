@@ -41,7 +41,7 @@ void renderer_init(struct Renderer *self) {
 
     self->block_atlas = blockatlas_create(
             "res/images/blocks.png",
-            (ivec2s) {{16, 16}}
+            (ivec2s) {.raw = {16, 16}}
     );
 
     self->textures[TEXTURE_CROSSHAIR] = texture_create_from_path("res/images/crosshair.png");
@@ -63,7 +63,7 @@ void renderer_init(struct Renderer *self) {
     );
 }
 
-void renderer_destroy(struct Renderer *self) {
+void renderer_destroy(const struct Renderer *self) {
     for (size_t i = 0; i <= SHADERS_LAST; i++) {
         shader_destroy(self->shaders[i]);
     }
@@ -153,9 +153,9 @@ void renderer_use_shader(struct Renderer *self, enum ShaderType shader) {
 
 void renderer_quad_color(
         struct Renderer *self,
-        vec2s size,
-        vec4s color,
-        mat4s model
+        const vec2s size,
+        const vec4s color,
+        const mat4s model
 ) {
     renderer_use_shader(self, SHADER_BASIC_COLOR);
     renderer_set_view_proj(self);
@@ -177,17 +177,17 @@ void renderer_quad_color(
 
     vao_bind(self->vao);
     vbo_bind(self->ibo);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void *) 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
 void renderer_quad_texture(
         struct Renderer *self,
-        struct Texture texture,
-        vec2s size,
-        vec4s color,
-        vec2s uv_min,
-        vec2s uv_max,
-        mat4s model
+        const struct Texture texture,
+        const vec2s size,
+        const vec4s color,
+        const vec2s uv_min,
+        const vec2s uv_max,
+        const mat4s model
 ) {
     renderer_use_shader(self, SHADER_BASIC_TEXTURE);
     renderer_set_view_proj(self);
@@ -205,7 +205,7 @@ void renderer_quad_texture(
             uv_min.x, uv_max.y,
             uv_max.x, uv_max.y,
             uv_max.x, uv_min.y
-    }, 0, ((4 * 3) + (4 * 2)) * sizeof(f32));
+    }, 0, (4 * 3 + 4 * 2) * sizeof(f32));
 
     vbo_buffer(self->ibo, (u32[]) {
             3, 0, 1, 3, 1, 2
@@ -216,15 +216,15 @@ void renderer_quad_texture(
 
     vao_bind(self->vao);
     vbo_bind(self->ibo);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void *) 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
 void renderer_aabb(
         struct Renderer *self,
         AABB aabb,
-        vec4s color,
-        mat4s model,
-        enum FillMode fill_mode
+        const vec4s color,
+        const mat4s model,
+        const enum FillMode fill_mode
 ) {
     renderer_use_shader(self, SHADER_BASIC_COLOR);
     renderer_set_view_proj(self);
@@ -240,7 +240,8 @@ void renderer_aabb(
             5, 4, 0, 5, 0, 1  // bottom (-y)
     };
 
-    vec3s min = aabb[0], max = aabb[1];
+    const vec3s min = aabb[0];
+    const vec3s max = aabb[1];
     f32 vertices[] = {
             min.x, min.y, min.z,
             max.x, min.y, min.z,
@@ -265,7 +266,7 @@ void renderer_aabb(
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void *) 0);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 
     if (fill_mode == FILL_MODE_LINE) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

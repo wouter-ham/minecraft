@@ -67,7 +67,7 @@ struct Renderer {
 };
 
 void renderer_init(struct Renderer *self);
-void renderer_destroy(struct Renderer *self);
+void renderer_destroy(const struct Renderer *self);
 void renderer_update(struct Renderer *self);
 void renderer_prepare(struct Renderer *self, enum RenderPass pass);
 void renderer_set_camera(struct Renderer *self, enum CameraType type);

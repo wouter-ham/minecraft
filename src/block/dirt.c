@@ -1,7 +1,7 @@
 #include "block.h"
 
-static ivec2s get_texture_location(struct World *world, ivec3s pos, enum Direction d) {
-    return (ivec2s) {{ 2, 0 }};
+static ivec2s get_texture_location(struct World *world, const ivec3s pos, enum Direction d) {
+    return (ivec2s) {.raw = { 2, 0 }};
 }
 
 void dirt_init() {
