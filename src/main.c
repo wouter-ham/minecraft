@@ -1,5 +1,4 @@
 #include "gfx/window.h"
-#include "gfx/gfx.h"
 
 #include "state.h"
 #include "block/block.h"
@@ -7,7 +6,7 @@
 // global state
 struct State state;
 
-static void init(void) {
+static void init() {
     block_init();
     state.window = &window;
     renderer_init(&state.renderer);
@@ -70,13 +69,13 @@ static void init(void) {
     state.world.entity_view = player;
 }
 
-static void destroy(void) {
+static void destroy() {
     renderer_destroy(&state.renderer);
     world_destroy(&state.world);
     ui_destroy(&state.ui);
 }
 
-static void tick(void) {
+static void tick() {
     state.ticks++;
     world_tick(&state.world);
     ui_tick(&state.ui);
@@ -91,7 +90,7 @@ static void tick(void) {
     }
 }
 
-static void update(void) {
+static void update() {
     renderer_update(&state.renderer);
     world_update(&state.world);
     ui_update(&state.ui);
@@ -107,7 +106,7 @@ static void update(void) {
     }
 }
 
-static void render(void) {
+static void render() {
     renderer_prepare(&state.renderer, PASS_3D);
     world_render(&state.world);
 
@@ -120,7 +119,7 @@ static void render(void) {
     renderer_pop_camera(&state.renderer);
 }
 
-int main(int argc, char *argv[]) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
     window_create(init, destroy, tick, update, render);
     window_loop();
 }
