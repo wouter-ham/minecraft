@@ -13,7 +13,7 @@ ifeq ($(UNAME_S), Darwin)
 endif
 
 ifeq ($(UNAME_S), Linux)
-	LDFLAGS += -ldl -lpthread
+	LDFLAGS += -ldl -lpthread -lwayland-client
 endif
 
 SRC  = $(wildcard src/**/*.c) $(wildcard src/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
@@ -27,7 +27,7 @@ all: dirs libs game
 libs:
 	cd lib/cglm && cmake . -DCGLM_STATIC=ON -DCMAKE_C_FLAGS="-Wno-error=array-parameter -Wno-error=stringop-overflow -Wno-error=array-bounds" && make
 	cd lib/glad && $(CC) -o src/glad.o -Iinclude -c src/glad.c
-	cd lib/glfw && cmake . && make
+	cd lib/glfw && cmake -DGLFW_USE_WAYLAND=ON . && make
 	cd lib/noise && make
 
 dirs:
