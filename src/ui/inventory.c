@@ -24,11 +24,11 @@ static vec2s base_offset() {
 }
 
 static bool in_bounds(const vec4s bounds, const vec2s coords) {
-    if (coords.x < bounds.x || coords.x > bounds.z) {
+    if (coords.x < bounds.x || coords.x >= bounds.z) {
         return false;
     }
 
-    if (coords.y < bounds.y || coords.y > bounds.w) {
+    if (coords.y < bounds.y || coords.y >= bounds.w) {
         return false;
     }
 
@@ -95,7 +95,6 @@ static bool slot_at(const struct UIInventory *self, const vec2s mouse, size_t *r
     };
 
     if (!in_bounds(bounds, mouse_pos)) {
-        printf("in_bounds: false\n");
         return false;
     }
 
@@ -153,16 +152,38 @@ static void render(const struct UIInventory *self) {
     }
 }
 
+static void swap(enum BlockId *x, enum BlockId *y) {
+    const int temp = *x;
+    *x = *y;
+    *y = temp;
+}
+
+static void left_click(struct UIInventory *self) {
+    size_t row, col;
+    const bool has_slot = slot_at(self, state.window->mouse.position, &row, &col);
+
+    if (!has_slot) {
+        return;
+    }
+
+    swap(&self->values[row][col], &self->held);
+}
+
 static void update(struct UIInventory *self) {
     if (state.window->keyboard.keys[GLFW_KEY_E].pressed) {
         self->visible = !self->visible;
 
         mouse_set_grabbed(!self->visible);
     }
+
+    if (self->visible && state.window->mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].pressed) {
+        left_click(self);
+    }
 }
 
 struct UIComponent inventory_init(struct UIInventory *self) {
     self->visible = false;
+    self->held = AIR;
 
     enum BlockId items[INVENTORY_ROWS][INVENTORY_COLUMNS];
 
