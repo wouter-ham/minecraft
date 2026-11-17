@@ -18,20 +18,21 @@ endif
 
 SRC  = $(wildcard src/**/*.c) $(wildcard src/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
 OBJ  = $(SRC:.c=.o)
+DEP  = $(SRC:.c=.d)
 BIN = bin
 
 .PHONY: all clean
 
 all: dirs libs game
 
+dirs:
+	mkdir -p ./$(BIN)
+
 libs:
 	cd lib/cglm && cmake . -DCGLM_STATIC=ON -DCMAKE_C_FLAGS="-Wno-error=array-parameter -Wno-error=stringop-overflow -Wno-error=array-bounds" && make
 	cd lib/glad && $(CC) -o src/glad.o -Iinclude -c src/glad.c
 	cd lib/glfw && cmake -DGLFW_USE_WAYLAND=ON . && make
 	cd lib/noise && make
-
-dirs:
-	mkdir -p ./$(BIN)
 
 run: all
 	$(BIN)/game
@@ -43,4 +44,6 @@ game: $(OBJ)
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 clean:
-	rm -rf $(BIN) $(OBJ)
+	rm -rf $(BIN) $(OBJ) $(DEP)
+
+-include $(DEP)

@@ -129,7 +129,7 @@ glms_ivec2_unpack(ivec2 dst[], ivec2s src[], size_t len) {
  */
 CGLM_INLINE
 ivec2s
-glms_ivec2_zero(void) {
+glms_ivec2_zero() {
   ivec2s r;
   glm_ivec2_zero(r.raw);
   return r;
@@ -142,7 +142,7 @@ glms_ivec2_zero(void) {
  */
 CGLM_INLINE
 ivec2s
-glms_ivec2_one(void) {
+glms_ivec2_one() {
   ivec2s r;
   glm_ivec2_one(r.raw);
   return r;

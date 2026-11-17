@@ -83,8 +83,8 @@ void window_create(FWindow init, FWindow destroy, FWindow tick, FWindow update, 
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    window.size = (ivec2s){{1280, 720}};
-    window.handle = glfwCreateWindow(window.size.x, window.size.y, "Minecraft", NULL, NULL);
+    window.size = (ivec2s){.raw = {1280, 720}};
+    window.handle = glfwCreateWindow(window.size.x, window.size.y, "Minecraft", nullptr, nullptr);
     if (window.handle == NULL) {
         fprintf(stderr, "%s", "error creating window\n");
         glfwTerminate();
@@ -108,21 +108,21 @@ void window_create(FWindow init, FWindow destroy, FWindow tick, FWindow update, 
     glfwSwapInterval(1);
 }
 
-static void button_array_tick(size_t n, struct Button *buttons) {
+static void button_array_tick(const size_t n, struct Button *buttons) {
     for (size_t i = 0; i < n; i++) {
         buttons[i].pressed_tick = buttons[i].down && !buttons[i].last_tick;
         buttons[i].last_tick = buttons[i].down;
     }
 }
 
-static void button_array_update(size_t n, struct Button *buttons) {
+static void button_array_update(const size_t n, struct Button *buttons) {
     for (size_t i = 0; i < n; i++) {
         buttons[i].pressed = buttons[i].down && !buttons[i].last;
         buttons[i].last = buttons[i].down;
     }
 }
 
-static void init(void) {
+static void init() {
     window.init();
 }
 

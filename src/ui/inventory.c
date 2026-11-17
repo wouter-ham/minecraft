@@ -4,6 +4,37 @@
 #include "../state.h"
 #include "item_slot.h"
 
+static vec2s get_scale() {
+    int window_x, window_y;
+    glfwGetWindowSize(state.window->handle, &window_x, &window_y);
+
+    int frame_x, frame_y;
+    glfwGetFramebufferSize(state.window->handle, &frame_x, &frame_y);
+
+    return (vec2s){.raw = {(float) frame_x / (float) window_x, (float) frame_y / (float) window_y}};
+}
+
+static vec2s base_offset() {
+    return (vec2s){
+        .raw = {
+            ((f32) state.window->size.x - (INVENTORY_COLUMNS * SLOT_PIXELS)) / 2.0f,
+            ((f32) state.window->size.y - (INVENTORY_ROWS * SLOT_PIXELS)) / 2.0f
+        }
+    };
+}
+
+static bool in_bounds(const vec4s bounds, const vec2s coords) {
+    if (coords.x < bounds.x || coords.x > bounds.z) {
+        return false;
+    }
+
+    if (coords.y < bounds.y || coords.y > bounds.w) {
+        return false;
+    }
+
+    return true;
+}
+
 static void render_icon(const vec2s offset, const enum BlockId block_id) {
     mat4s m = glms_mat4_identity();
 
@@ -41,11 +72,45 @@ static void render_icon(const vec2s offset, const enum BlockId block_id) {
     }
 }
 
+static bool slot_at(const struct UIInventory *self, const vec2s mouse, size_t *row_out, size_t *col_out) {
+    if (!self->visible) {
+        return false;
+    }
+
+    int window_x, window_y;
+    glfwGetWindowSize(state.window->handle, &window_x, &window_y);
+
+    const vec2s offset = base_offset();
+
+    const vec2s scale = get_scale();
+    const vec2s mouse_pos = {.raw = {mouse.x * scale.x, (float) state.window->size.y - (mouse.y * scale.y)}};
+
+    const vec4s bounds = {
+        .raw = {
+            offset.x,
+            offset.y,
+            offset.x + SLOT_PIXELS * INVENTORY_COLUMNS,
+            offset.y + SLOT_PIXELS * INVENTORY_ROWS
+        }
+    };
+
+    if (!in_bounds(bounds, mouse_pos)) {
+        printf("in_bounds: false\n");
+        return false;
+    }
+
+    *col_out = (int) (((float) mouse_pos.x - offset.x) / SLOT_PIXELS);
+    *row_out = (int) (((float) mouse_pos.y - offset.y) / SLOT_PIXELS);
+
+    return true;
+}
+
 static void render(const struct UIInventory *self) {
     if (!self->visible) {
         return;
     }
 
+    // background shade
     renderer_quad_color(
         &state.renderer,
         (vec2s){.raw = {(float) state.window->size.x, (float) state.window->size.y}},
@@ -53,12 +118,8 @@ static void render(const struct UIInventory *self) {
         glms_mat4_identity()
     );
 
-    const auto base_offset = (vec2s){
-        .raw = {
-            ((f32) state.window->size.x - (INVENTORY_COLUMNS * SLOT_PIXELS)) / 2.0f,
-            ((f32) state.window->size.y - (INVENTORY_ROWS * SLOT_PIXELS)) / 2.0f
-        }
-    };
+    size_t row, col;
+    const bool is_hovering = slot_at(self, state.window->mouse.position, &row, &col);
 
     for (size_t i = 0; i < INVENTORY_ROWS; i++) {
         for (size_t j = 0; j < INVENTORY_COLUMNS; j++) {
@@ -69,7 +130,7 @@ static void render(const struct UIInventory *self) {
                         (f32) i * SLOT_PIXELS
                     }
                 },
-                base_offset
+                base_offset()
             );
 
             // renders the item frame
@@ -77,7 +138,10 @@ static void render(const struct UIInventory *self) {
                 &state.renderer,
                 state.renderer.textures[TEXTURE_HOTBAR],
                 (vec2s){.raw = {SLOT_PIXELS, SLOT_PIXELS}},
-                (vec4s){.raw = {1.0f, 1.0f, 1.0f, 1.0f}},
+                // red frame when hovering over it
+                is_hovering && row == i && col == j
+                    ? (vec4s){.raw = {1.0f, 0.0f, 0.0f, 1.0f}}
+                    : (vec4s){.raw = {1.0f, 1.0f, 1.0f, 1.0f}},
                 (vec2s){.raw = {0.0f, 0.0f}},
                 (vec2s){.raw = {0.5f, 1.0f}},
                 glms_translate_make((vec3s){.raw = {offset.x, offset.y, 0.0f}})
