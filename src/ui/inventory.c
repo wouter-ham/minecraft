@@ -150,6 +150,17 @@ static void render(const struct UIInventory *self) {
             render_icon(offset, self->values[i][j]);
         }
     }
+
+    const vec2s scale = get_scale();
+    render_icon(
+        (vec2s){
+            .raw = {
+                (state.window->mouse.position.x * scale.x) - (SLOT_PIXELS / 2),
+                (float) state.window->size.y - (state.window->mouse.position.y * scale.y) - (SLOT_PIXELS / 2)
+            }
+        },
+        self->held
+    );
 }
 
 static void swap(enum BlockId *x, enum BlockId *y) {
@@ -189,7 +200,7 @@ struct UIComponent inventory_init(struct UIInventory *self) {
 
     for (int i = 0; i < INVENTORY_ROWS; ++i) {
         for (int j = 0; j < INVENTORY_COLUMNS; ++j) {
-            items[i][j] = AIR;
+            items[i][j] = rand() % sizeof(enum BlockId);
         }
     }
 
