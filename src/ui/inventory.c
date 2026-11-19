@@ -200,7 +200,7 @@ struct UIComponent inventory_init(struct UIInventory *self) {
 
     for (int i = 0; i < INVENTORY_ROWS; ++i) {
         for (int j = 0; j < INVENTORY_COLUMNS; ++j) {
-            items[i][j] = rand() % sizeof(enum BlockId);
+            items[i][j] = rand() % BLOCK_ID_COUNT;
         }
     }
 

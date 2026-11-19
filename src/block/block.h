@@ -9,7 +9,7 @@
 struct World;
 
 #define BLOCK_ID_LAST PINE_LEAVES
-enum BlockId {
+enum BlockId : uint8_t {
     AIR = 0,
     GRASS = 1,
     DIRT = 2,
@@ -34,7 +34,8 @@ enum BlockId {
     SHRUB = 21,
     TALLGRASS = 22,
     PINE_LOG = 23,
-    PINE_LEAVES = 24
+    PINE_LEAVES = 24,
+    BLOCK_ID_COUNT
 };
 
 struct Block {
